@@ -2,6 +2,8 @@ const port = 4444;
 const express = require('express')
 const bodyParser = require('body-parser');
 const server = express();
+const TravelblogRepository = require('./travelblog.repository')
+
 
 server.use(bodyParser.json({extended: false }));
 
@@ -11,7 +13,7 @@ server.post('/travelblog', (req, res) => {
         .then(id => res.status(201).send({ id: id }))
         .catch(err => {
             console.log(err);
-            res.send(500);
+            res.sendStatus(500);
         });
 });
 
@@ -21,7 +23,7 @@ server.get('/travelblog/:id', (req, res) => {
         .then(obj => res.status(200).send(obj))
         .catch(err => {
             console.log(err);
-            res.send(500);
+            res.sendStatus(500);
         })
 });
 
@@ -31,7 +33,7 @@ server.get('/travelblogs', (req, res) => {
         .then(obj => res.status(200).send(obj))
         .catch(err => {
             console.log(err);
-            res.send(500);
+            res.sendStatus(500);
         })
 });
 

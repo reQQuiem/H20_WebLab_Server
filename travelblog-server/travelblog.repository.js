@@ -63,3 +63,4 @@ class TravelblogRepository {
         return collection;
     }
 }
+module.exports = TravelblogRepository
