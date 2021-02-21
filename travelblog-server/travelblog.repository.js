@@ -1,60 +1,54 @@
-const uuid = require('uuid').v1;
-const mongo = require('mongodb').MongoClient
-const url = process.env.MONGODB_CONNECTIONSTRING;
+const mongo = require('mongodb').MongoClient;
+var ObjectId = require('mongodb').ObjectId; 
+
+const url = 'mongodb+srv://Server:comi1234@travelblogcluster.6hqwt.mongodb.net/myFirstDatabase';
 
 class TravelblogRepository {
 
     async createTravelblog() {
-        const client = await this.getClient();
-        let collection = this.getCollection(client);
-
-        let travelblogUuid = uuid();
-        let travelblog = {
-            id: travelblogUuid,
-            entries: []
-        };
-
-        await collection.insertOne(travelblog);
-
-        return travelblogUuid;
+        let travelblog = { entries: [] };
+        return this.executeOnDb(async c =>
+            (await this.getCollection(c).insertOne(travelblog))["ops"][0]["_id"])
     }
 
-    async getTravelblog(travelblogUuid) {
-        const client = await this.getClient();
-        let collection = this.getCollection(client);
-        return await collection.findOne({id: travelblogUuid});
+    async getTravelblog(id) {
+        return this.executeOnDb(async c =>
+            await this.getCollection(c).findOne( { _id: ObjectId(id) } )
+        )
     }
 
     async getTravelblogs() {
-        const client = await this.getClient();
-        let collection = this.getCollection(client);
-        let resultAsArray = await collection.find({}).toArray();
-        return resultAsArray.map(n => n.id);
+        return this.executeOnDb(async c =>
+            await this.getCollection(c).find({}).toArray()
+        )
     }
 
-
-    async updateTravelblog(travelblogUuid, travelblogBody) {
-        const client = await this.getClient();
-        if (!client) {
-            throw "Client not available.";
-        }
-
-        let collection = this.getCollection(client);
-        await collection.updateOne({id: travelblogUuid}, {$set: travelblogBody});
+    // TODO: entries separately
+    async updateTravelblog(body) {
+        return this.executeOnDb(async c =>
+            await this.getCollection(c).updateOne(
+                { _id: ObjectId(body._id) },
+                { $set: {
+                    title: body.title,
+                    destination: body.destination,
+                    travelTime: body.travelTime,
+                    abstract: body.abstract,
+                    entries: body.entries
+                }}
+            )
+        );
     }
 
-    async deleteTravelblog(travelblogUuid) {
-        const client = await this.getClient();
-        if (!client) {
-            throw "Client not available.";
-        }
-
-        let collection = this.getCollection(client);
-        await collection.deleteOne({id: travelblogUuid});
+    async deleteTravelblog(id) {
+        return this.executeOnDb(
+            async c => await this.getCollection(c).deleteOne( { _id: ObjectId(id) } )
+        )
     }
 
-    async getClient() {
-        return await mongo.connect(url).catch((err) => console.log(err));
+    async executeOnDb(success) {
+        return mongo.connect(url, { useUnifiedTopology: true })
+            .then(c => success(c))
+            .catch(err => { throw err; })
     }
 
     getCollection(client) {
