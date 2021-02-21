@@ -2,35 +2,61 @@ const port = 4444;
 const express = require('express')
 const bodyParser = require('body-parser');
 const server = express();
+const TravelblogRepository = require('./travelblog.repository')
+
 
 server.use(bodyParser.json({extended: false }));
 
-server.post('/blogpost', (req, res) => {
-    res.status(201);
-    res.send('POST worked, returning generated id');
+server.post('/travelblog', (req, res) => {
+    let repo = new TravelblogRepository();
+    repo.createTravelblog()
+        .then(id => res.status(201).send({ id: id }))
+        .catch(err => {
+            console.log(err);
+            res.sendStatus(500);
+        });
 });
 
-server.get('/blogpost/:id', (req, res) => {
-    res.status(200).send('Trying to get Travelblog with id: ' + req.params.id);
+server.get('/travelblog/:id', (req, res) => {
+    let repo = new TravelblogRepository();
+    repo.getTravelblog(req.params.id)
+        .then(obj => res.status(200).send(obj))
+        .catch(err => {
+            console.log(err);
+            res.sendStatus(500);
+        })
 });
 
-server.get('/blogposts', (req, res) => {
-    res.status(200).send('Getting all travelblogs');
+server.get('/travelblogs', (req, res) => {
+    let repo = new TravelblogRepository();
+    repo.getTravelblogs()
+        .then(obj => res.status(200).send(obj))
+        .catch(err => {
+            console.log(err);
+            res.sendStatus(500);
+        })
 });
 
-server.delete('/blogpost', (req, res) => {
-    console.log(req.body);
+server.delete('/travelblog', (req, res) => {
     if (!req.body.id) {
         res.status(400).json({ error: 'Please include id' });
     }
-    res.status(204).send();
+    let repo = new TravelblogRepository();
+    repo.deleteTravelblog(req.body.id)
+        .then(_ => res.sendStatus(200))
+        .catch(_ => res.sendStatus(500));
 });
 
-server.put('/blogpost', (req, res) => {
+server.put('/travelblog', (req, res) => {
     if (!req.body.id) {
         res.status(400).json({ error: 'Please include id' });
     }
-    res.status(204).send();
+    let repo = new TravelblogRepository();
+    let travelblogBody = req.body;
+    delete travelblogBody.id;
+    repo.updateTravelblog(id, travelblogBody)
+        .then(_ => res.sendStatus(200))
+        .catch(_ => res.sendStatus(500));
 });
 
 server.listen(port, () => {
