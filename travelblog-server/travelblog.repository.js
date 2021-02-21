@@ -1,7 +1,11 @@
 const mongo = require('mongodb').MongoClient;
-var ObjectId = require('mongodb').ObjectId; 
+var ObjectId = require('mongodb').ObjectId;
+const dotenv = require("dotenv");
+dotenv.config();
+const url = process.env.CONNECTIONSTRING;
+const dbName = process.env.DB_NAME;
+const collectionName = process.env.COLLECTION_NAME;
 
-const url = 'mongodb+srv://Server:comi1234@travelblogcluster.6hqwt.mongodb.net/myFirstDatabase';
 
 class TravelblogRepository {
 
@@ -46,14 +50,15 @@ class TravelblogRepository {
     }
 
     async executeOnDb(success) {
+        console.log("URL: " + url);
         return mongo.connect(url, { useUnifiedTopology: true })
             .then(c => success(c))
             .catch(err => { throw err; })
     }
 
     getCollection(client) {
-        const db = client.db('travelblog-app');
-        let collection = db.collection('travelblogs');
+        const db = client.db(dbName);
+        let collection = db.collection(collectionName);
         return collection;
     }
 }
