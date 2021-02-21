@@ -58,7 +58,7 @@ class TravelblogRepository {
     }
 
     getCollection(client) {
-        const db = client.db('travel-app');
+        const db = client.db('travelblog-app');
         let collection = db.collection('travelblogs');
         return collection;
     }
