@@ -1,10 +1,8 @@
 const mongo = require('mongodb').MongoClient;
 var ObjectId = require('mongodb').ObjectId;
-const dotenv = require("dotenv");
-dotenv.config();
 const url = process.env.CONNECTIONSTRING;
 const dbName = process.env.DB_NAME;
-const collectionName = process.env.COLLECTION_NAME;
+const collectionName = process.env.TRAVELBLOGS_COLLECTION_NAME;
 
 
 class TravelblogRepository {
@@ -50,7 +48,6 @@ class TravelblogRepository {
     }
 
     async executeOnDb(success) {
-        console.log("URL: " + url);
         return mongo.connect(url, { useUnifiedTopology: true })
             .then(c => success(c))
             .catch(err => { throw err; })

@@ -2,12 +2,51 @@ const port = 4444;
 const express = require('express')
 const bodyParser = require('body-parser');
 const server = express();
-const TravelblogRepository = require('./travelblog.repository')
+const TravelblogRepository = require('./travelblog.repository');
+var cors = require('cors');
+const jwt = require("jsonwebtoken");
+require("dotenv").config();
+const tokenSecret = process.env.TOKEN_SECRET;
 
-
+server.use(cors()); // res.header({ 'Access-Control-Allow-Origin': 'http://localhost:4200'})
 server.use(bodyParser.json({extended: false }));
+server.use(express.json());
 
-server.post('/travelblog', (req, res) => {
+// TODO: nur für Testzwecke
+const posts = [
+    {
+        username: 'Colin',
+        title: 'Post 1'
+    },
+    {
+        username: 'Mischa',
+        title: 'Post 2'
+    }
+]
+
+function authenticateToken(req, res, next) {
+    // Gather the jwt access token from the request header
+    const authHeader = req.headers['authorization']
+    const token = authHeader && authHeader.split(' ')[1]
+    if (token == null) return res.sendStatus(401) // if there isn't any token
+    console.log('token in authenticateToken', token)
+    console.log('tokenSecret in authenticateToken', tokenSecret)
+
+    jwt.verify(token, tokenSecret, (err , user) => {
+        console.log(err)
+        if (err) return res.sendStatus(403)
+        req.user = user
+        next() // pass the execution off to whatever request the client intended
+    })
+}
+
+// TODO: nur für Testzwecke
+server.get('/login', authenticateToken, (req, res) => {
+    console.log("username in /api/login: ", req.user.name)
+    res.json(posts.filter(post => post.username === req.user.name));
+})
+
+server.post('/travelblog', authenticateToken, (req, res) => {
     let repo = new TravelblogRepository();
     repo.createTravelblog()
         .then(id => res.status(201).send({ _id: id }))
@@ -40,7 +79,7 @@ server.get('/travelblogs', (req, res) => {
         })
 });
 
-server.delete('/travelblog', (req, res) => {
+server.delete('/travelblog', authenticateToken, (req, res) => {
     let id = req.body._id;
     if (!id) {
         res.status(400).json({ error: 'Please include id' });
@@ -52,7 +91,7 @@ server.delete('/travelblog', (req, res) => {
         .catch(_ => res.sendStatus(500));
 });
 
-server.put('/travelblog', (req, res) => {
+server.put('/travelblog', authenticateToken, (req, res) => {
     if (!req.body._id) {
         res.status(400).json({ error: 'Please include id' });
     }
@@ -63,5 +102,6 @@ server.put('/travelblog', (req, res) => {
 });
 
 server.listen(port, () => {
+    console.log(process.env);
     console.log('Web Programming lab server is running...');
 });
