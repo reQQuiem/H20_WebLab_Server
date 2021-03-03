@@ -58,7 +58,6 @@ server.get('/travelblog/:id', (req, res) => {
     let repo = new TravelblogRepository();
     repo.getTravelblog(req.params.id)
         .then(obj => {
-            console.log(obj);
             res.status(200).send(obj)
         })
         .catch(err => {
