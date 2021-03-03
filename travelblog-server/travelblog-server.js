@@ -3,10 +3,11 @@ const express = require('express')
 const bodyParser = require('body-parser');
 const server = express();
 const TravelblogRepository = require('./travelblog.repository');
-var cors = require('cors');
 const jwt = require("jsonwebtoken");
-require("dotenv").config();
 const tokenSecret = process.env.TOKEN_SECRET;
+require("dotenv").config();
+
+var cors = require('cors');
 
 server.use(cors()); // res.header({ 'Access-Control-Allow-Origin': 'http://localhost:4200'})
 server.use(bodyParser.json({extended: false }));
@@ -29,9 +30,6 @@ function authenticateToken(req, res, next) {
     const authHeader = req.headers['authorization']
     const token = authHeader && authHeader.split(' ')[1]
     if (token == null) return res.sendStatus(401) // if there isn't any token
-    console.log('token in authenticateToken', token)
-    console.log('tokenSecret in authenticateToken', tokenSecret)
-
     jwt.verify(token, tokenSecret, (err , user) => {
         console.log(err)
         if (err) return res.sendStatus(403)
@@ -42,7 +40,6 @@ function authenticateToken(req, res, next) {
 
 // TODO: nur für Testzwecke
 server.get('/login', authenticateToken, (req, res) => {
-    console.log("username in /api/login: ", req.user.name)
     res.json(posts.filter(post => post.username === req.user.name));
 })
 
@@ -69,7 +66,7 @@ server.get('/travelblog/:id', (req, res) => {
         })
 });
 
-server.get('/travelblogs', (req, res) => {
+server.get('/travelblogs', authenticateToken, (req, res) => {
     let repo = new TravelblogRepository();
     repo.getTravelblogs()
         .then(obj => res.status(200).send(obj))
@@ -102,6 +99,5 @@ server.put('/travelblog', authenticateToken, (req, res) => {
 });
 
 server.listen(port, () => {
-    console.log(process.env);
-    console.log('Web Programming lab server is running...');
+    console.log('Travelblog-Server is running...');
 });

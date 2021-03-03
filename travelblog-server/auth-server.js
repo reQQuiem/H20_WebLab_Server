@@ -5,11 +5,15 @@ const bodyParser = require('body-parser');
 const server = express();
 const jwt = require("jsonwebtoken");
 const bcrypt = require('bcrypt');
-const tokenSecret = process.env.TOKEN_SECRET;
+require("dotenv").config();
 
+const tokenSecret = process.env.TOKEN_SECRET;
+var cors = require('cors')
+
+server.use(cors())
 server.use(bodyParser.json({extended: false }));
 
-server.post('/users', async (req, res) => {
+server.post('/user', async (req, res) => {
     try {
         let repo = new UsersRepository();
         const salt = await bcrypt.genSalt();
@@ -26,7 +30,8 @@ server.post('/users', async (req, res) => {
     }
 });
 
-server.post('/users/login', async (req, res) => {
+// TODO: nur für Testzwecke
+server.post('/user/login', async (req, res) => {
     let repo = new UsersRepository();
     const user = repo.getUser(req.body.name);
     if (user == null) {
@@ -45,6 +50,7 @@ server.post('/users/login', async (req, res) => {
     }
 });
 
+// TODO: nur für Testzwecke
 server.get('/users', (req, res) => {
     let repo = new UsersRepository();
     repo.getUsers()
@@ -66,7 +72,8 @@ server.post('/login', async (req, res) => {
             const username = req.body.name;
             const user = { name: username }
             const accessToken = generateAccessToken(user);
-            res.json( {accessToken: accessToken} );
+            const decodedAccessToken = jwt.decode(accessToken);
+            res.json( {accessToken: accessToken, expiresAt: decodedAccessToken.exp} );
         } else {
             res.send('Not Allowed');
         }
@@ -81,5 +88,5 @@ function generateAccessToken(user) {
 }
 
 server.listen(port, () => {
-    console.log('Web Programming lab server is running...');
+    console.log('Authentication-Server is running...');
 });
