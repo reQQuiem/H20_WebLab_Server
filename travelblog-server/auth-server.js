@@ -20,8 +20,7 @@ server.post('/user', async (req, res) => {
         const hashedPassword = await bcrypt.hash(req.body.password, salt)
         const user = {
             name: req.body.name,
-            password: hashedPassword,
-            blogIds: []
+            password: hashedPassword
         }
         repo.createUser(user);
         res.status(201).send();
@@ -73,7 +72,8 @@ server.post('/login', async (req, res) => {
             const user = { name: username }
             const accessToken = generateAccessToken(user);
             const decodedAccessToken = jwt.decode(accessToken);
-            res.json( {accessToken: accessToken, expiresAt: decodedAccessToken.exp} );
+            console.log(decodedAccessToken);
+            res.json( {accessToken: accessToken, expiresAt: decodedAccessToken.exp } );
         } else {
             res.send('Not Allowed');
         }

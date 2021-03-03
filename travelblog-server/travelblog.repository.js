@@ -1,5 +1,6 @@
 const mongo = require('mongodb').MongoClient;
 var ObjectId = require('mongodb').ObjectId;
+const UsersRepository = require('./user.repository')
 require("dotenv").config();
 
 const url = process.env.CONNECTIONSTRING;
@@ -43,9 +44,13 @@ class TravelblogRepository {
         );
     }
 
-    async deleteTravelblog(id) {
+    async deleteTravelblog(id, name) {
+        let repo = new UsersRepository();
+        const user = await repo.getUser(name);
+
+        if (!user) throw "No user found!";
         return this.executeOnDb(
-            async c => await this.getCollection(c).deleteOne( { _id: ObjectId(id) } )
+            async c => await this.getCollection(c).deleteOne( { _id: ObjectId(id), owner: user.name} )
         )
     }
 

@@ -10,7 +10,7 @@ require("dotenv").config();
 var cors = require('cors');
 
 server.use(cors()); // res.header({ 'Access-Control-Allow-Origin': 'http://localhost:4200'})
-server.use(bodyParser.json({extended: false }));
+server.use(bodyParser.json({extended: false}));
 server.use(express.json());
 
 // TODO: nur für Testzwecke
@@ -25,12 +25,17 @@ const posts = [
     }
 ]
 
+// TODO: nur für Testzwecke
+server.get('/login', authenticateToken, (req, res) => {
+    res.json(posts.filter(post => post.username === req.user.name));
+})
+
 function authenticateToken(req, res, next) {
     // Gather the jwt access token from the request header
     const authHeader = req.headers['authorization']
     const token = authHeader && authHeader.split(' ')[1]
     if (token == null) return res.sendStatus(401) // if there isn't any token
-    jwt.verify(token, tokenSecret, (err , user) => {
+    jwt.verify(token, tokenSecret, (err, user) => {
         console.log(err)
         if (err) return res.sendStatus(403)
         req.user = user
@@ -38,15 +43,11 @@ function authenticateToken(req, res, next) {
     })
 }
 
-// TODO: nur für Testzwecke
-server.get('/login', authenticateToken, (req, res) => {
-    res.json(posts.filter(post => post.username === req.user.name));
-})
 
 server.post('/travelblog', authenticateToken, (req, res) => {
     let repo = new TravelblogRepository();
     repo.createTravelblog()
-        .then(id => res.status(201).send({ _id: id }))
+        .then(id => res.status(201).send({_id: id}))
         .catch(err => {
             console.log(err);
             res.sendStatus(500);
@@ -66,7 +67,7 @@ server.get('/travelblog/:id', (req, res) => {
         })
 });
 
-server.get('/travelblogs', authenticateToken, (req, res) => {
+server.get('/travelblogs', (req, res) => {
     let repo = new TravelblogRepository();
     repo.getTravelblogs()
         .then(obj => res.status(200).send(obj))
@@ -79,18 +80,24 @@ server.get('/travelblogs', authenticateToken, (req, res) => {
 server.delete('/travelblog', authenticateToken, (req, res) => {
     let id = req.body._id;
     if (!id) {
-        res.status(400).json({ error: 'Please include id' });
+        res.status(400).json({error: 'Please include id'});
     }
 
     let repo = new TravelblogRepository();
-    repo.deleteTravelblog(id)
-        .then(_ => res.sendStatus(200))
+    repo.deleteTravelblog(id, req.user.name)
+        .then(x => {
+            // console.log(x);
+            if (x.result.n < 1)
+                res.sendStatus(401);
+            else
+                res.sendStatus(200);
+        })
         .catch(_ => res.sendStatus(500));
 });
 
 server.put('/travelblog', authenticateToken, (req, res) => {
     if (!req.body._id) {
-        res.status(400).json({ error: 'Please include id' });
+        res.status(400).json({error: 'Please include id'});
     }
     let repo = new TravelblogRepository();
     repo.updateTravelblog(req.body)

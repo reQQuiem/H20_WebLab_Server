@@ -16,7 +16,6 @@ class UsersRepository {
     }
 
     async getUser(name) {
-        console.log("name in getUser:" + name);
         return this.executeOnDb(async c =>
             await this.getCollection(c).findOne( { name: name } )
         )
