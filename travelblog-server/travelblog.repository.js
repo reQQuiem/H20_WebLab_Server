@@ -13,14 +13,7 @@ class TravelblogRepository {
     async createTravelblog(body, name) {
 
         let travelblog = { owner: name};
-        // TODO: Assure the data type makes sense
-        if (body.title) travelblog.title = body.title;
-        if (body.destination) travelblog.destination = body.destination;
-        if (body.departure) travelblog.departure = body.departure;
-        if (body.arrival) travelblog.arrival = body.arrival;
-        if (body.abstract) travelblog.abstract = body.abstract;
-        if (body.entries) travelblog.entries = body.entries;
-        else travelblog.entries = [];
+        this.applyAttributes(body, travelblog)
 
         return this.executeOnDb(async c =>
             (await this.getCollection(c).insertOne(travelblog))["ops"][0]["_id"])
@@ -74,6 +67,25 @@ class TravelblogRepository {
         const db = client.db(dbName);
         let collection = db.collection(collectionName);
         return collection;
+    }
+
+    applyAttributes(from, to) {
+        // TODO: Assure the data type makes sense
+        if (from.title)
+            to.title = from.title;
+        if (from.destination)
+            to.destination = from.destination;
+        if (from.departure)
+            to.departure = from.departure;
+        if (from.arrival)
+            to.arrival = from.arrival;
+        if (from.abstract)
+            to.abstract = from.abstract;
+        // TODO: Check parameters of entries as well
+        if (from.entries)
+            to.entries = from.entries;
+        else
+            to.entries = [];
     }
 }
 module.exports = TravelblogRepository

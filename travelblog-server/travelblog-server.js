@@ -86,7 +86,6 @@ server.delete('/travelblog', authenticateToken, (req, res) => {
     let repo = new TravelblogRepository();
     repo.deleteTravelblog(id, req.user.name)
         .then(x => {
-            // console.log(x);
             if (x.result.n < 1)
                 res.sendStatus(401);
             else
