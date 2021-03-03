@@ -91,7 +91,10 @@ server.delete('/travelblog', authenticateToken, (req, res) => {
             else
                 res.sendStatus(200);
         })
-        .catch(_ => res.sendStatus(500));
+        .catch(err => {
+            console.log(err);
+            res.sendStatus(500);
+        });
 });
 
 server.put('/travelblog', authenticateToken, (req, res) => {
@@ -99,9 +102,17 @@ server.put('/travelblog', authenticateToken, (req, res) => {
         res.status(400).json({error: 'Please include id'});
     }
     let repo = new TravelblogRepository();
-    repo.updateTravelblog(req.body)
-        .then(_ => res.sendStatus(200))
-        .catch(_ => res.sendStatus(500));
+    repo.updateTravelblog(req.body, req.user.name)
+        .then(x => {
+            if (x.result.n < 1)
+                res.sendStatus(401);
+            else
+                res.sendStatus(200);
+        })
+        .catch(err => {
+            console.log(err);
+            res.sendStatus(500);
+        });
 });
 
 server.listen(port, () => {

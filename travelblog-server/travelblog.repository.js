@@ -32,14 +32,20 @@ class TravelblogRepository {
     }
 
     // TODO: entries separately
-    async updateTravelblog(body) {
+    async updateTravelblog(body, name) {
+        let repo = new UsersRepository();
+        const user = await repo.getUser(name);
+        if (!user)
+            throw "No user found!";
+
         return this.executeOnDb(async c =>
             await this.getCollection(c).updateOne(
-                { _id: ObjectId(body._id) },
+                { _id: ObjectId(body._id), owner: user.name },
                 { $set: {
                     title: body.title,
                     destination: body.destination,
-                    travelTime: body.travelTime,
+                    departure: body.departure,
+                    arrival: body.arrival,
                     abstract: body.abstract,
                     entries: body.entries
                 }}
@@ -50,8 +56,9 @@ class TravelblogRepository {
     async deleteTravelblog(id, name) {
         let repo = new UsersRepository();
         const user = await repo.getUser(name);
+        if (!user)
+            throw "No user found!";
 
-        if (!user) throw "No user found!";
         return this.executeOnDb(
             async c => await this.getCollection(c).deleteOne( { _id: ObjectId(id), owner: user.name} )
         )
