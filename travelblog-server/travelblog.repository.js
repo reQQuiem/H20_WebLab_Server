@@ -10,8 +10,18 @@ const collectionName = process.env.TRAVELBLOGS_COLLECTION_NAME;
 
 class TravelblogRepository {
 
-    async createTravelblog() {
-        let travelblog = { entries: [] };
+    async createTravelblog(body, name) {
+
+        let travelblog = { owner: name};
+        // TODO: Assure the data type makes sense
+        if (body.title) travelblog.title = body.title;
+        if (body.destination) travelblog.destination = body.destination;
+        if (body.departure) travelblog.departure = body.departure;
+        if (body.arrival) travelblog.arrival = body.arrival;
+        if (body.abstract) travelblog.abstract = body.abstract;
+        if (body.entries) travelblog.entries = body.entries;
+        else travelblog.entries = [];
+
         return this.executeOnDb(async c =>
             (await this.getCollection(c).insertOne(travelblog))["ops"][0]["_id"])
     }

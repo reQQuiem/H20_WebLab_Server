@@ -46,7 +46,7 @@ function authenticateToken(req, res, next) {
 
 server.post('/travelblog', authenticateToken, (req, res) => {
     let repo = new TravelblogRepository();
-    repo.createTravelblog()
+    repo.createTravelblog(req.body, req.user.name) // TODO: userId instead of name
         .then(id => res.status(201).send({_id: id}))
         .catch(err => {
             console.log(err);
