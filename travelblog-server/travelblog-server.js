@@ -4,6 +4,7 @@ const bodyParser = require('body-parser');
 const server = express();
 const TravelblogRepository = require('./travelblog.repository');
 const jwt = require("jsonwebtoken");
+const url = require('url');
 const tokenSecret = process.env.TOKEN_SECRET;
 require("dotenv").config();
 
@@ -54,9 +55,10 @@ server.post('/travelblog', authenticateToken, (req, res) => {
         });
 });
 
+
 server.get('/travelblog/:id', (req, res) => {
     let repo = new TravelblogRepository();
-    repo.getTravelblog(req.params.id)
+    repo.getTravelblogById(req.params.id)
         .then(obj => {
             res.status(200).send(obj)
         })
@@ -68,7 +70,7 @@ server.get('/travelblog/:id', (req, res) => {
 
 server.get('/travelblogs', (req, res) => {
     let repo = new TravelblogRepository();
-    repo.getTravelblogs()
+    repo.getTravelblogs(req.query)
         .then(obj => res.status(200).send(obj))
         .catch(err => {
             console.log(err);

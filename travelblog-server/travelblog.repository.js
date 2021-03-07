@@ -19,15 +19,15 @@ class TravelblogRepository {
             (await this.getCollection(c).insertOne(travelblog))["ops"][0]["_id"])
     }
 
-    async getTravelblog(id) {
+    async getTravelblogById(id) {
         return this.executeOnDb(async c =>
             await this.getCollection(c).findOne( { _id: ObjectId(id) } )
         )
     }
 
-    async getTravelblogs() {
+    async getTravelblogs(filter) {
         return this.executeOnDb(async c =>
-            await this.getCollection(c).find({}).toArray()
+            await this.getCollection(c).find(filter).toArray()
         )
     }
 
