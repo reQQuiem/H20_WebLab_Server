@@ -64,7 +64,7 @@ class TravelblogRepository {
     }
 
     async executeOnDb(success) {
-        return mongo.connect(url)
+        return mongo.connect(url, { useUnifiedTopology: true })
             .then(c => success(c))
             .catch(err => { throw err; })
     }
