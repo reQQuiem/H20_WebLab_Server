@@ -2,7 +2,6 @@ const mongo = require('mongodb').MongoClient;
 var ObjectId = require('mongodb').ObjectId;
 const UsersRepository = require('./user.repository')
 require("dotenv").config();
-
 const url = process.env.CONNECTIONSTRING;
 const dbName = process.env.DB_NAME;
 const collectionName = process.env.TRAVELBLOGS_COLLECTION_NAME;
