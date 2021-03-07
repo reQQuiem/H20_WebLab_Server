@@ -76,8 +76,8 @@ server.get('/travelblogs', (req, res) => {
         })
 });
 
-server.delete('/travelblog', authenticateToken, (req, res) => {
-    let id = req.body._id;
+server.delete('/travelblog/:id', authenticateToken, (req, res) => {
+    let id = req.params.id;
     if (!id) {
         res.status(400).json({error: 'Please include id'});
     }
@@ -86,9 +86,9 @@ server.delete('/travelblog', authenticateToken, (req, res) => {
     repo.deleteTravelblog(id, req.user.name)
         .then(x => {
             if (x.result.n < 1)
-                res.sendStatus(401);
+                res.sendStatus(204);
             else
-                res.sendStatus(200);
+                res.status(202).send( {message: 'Accepted'} );
         })
         .catch(err => {
             console.log(err);
