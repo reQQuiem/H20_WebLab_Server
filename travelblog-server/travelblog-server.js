@@ -4,7 +4,6 @@ const bodyParser = require('body-parser');
 const server = express();
 const TravelblogRepository = require('./travelblog.repository');
 const jwt = require("jsonwebtoken");
-const url = require('url');
 const tokenSecret = process.env.TOKEN_SECRET;
 require("dotenv").config();
 
@@ -14,22 +13,6 @@ server.use(cors()); // res.header({ 'Access-Control-Allow-Origin': 'http://local
 server.use(bodyParser.json({extended: false}));
 server.use(express.json());
 
-// TODO: nur für Testzwecke
-const posts = [
-    {
-        username: 'Colin',
-        title: 'Post 1'
-    },
-    {
-        username: 'Mischa',
-        title: 'Post 2'
-    }
-]
-
-// TODO: nur für Testzwecke
-server.get('/login', authenticateToken, (req, res) => {
-    res.json(posts.filter(post => post.username === req.user.name));
-})
 
 function authenticateToken(req, res, next) {
     // Gather the jwt access token from the request header
@@ -44,7 +27,6 @@ function authenticateToken(req, res, next) {
     })
 }
 
-
 server.post('/travelblog', authenticateToken, (req, res) => {
     let repo = new TravelblogRepository();
     repo.createTravelblog(req.body, req.user.name) // TODO: userId instead of name
@@ -54,7 +36,6 @@ server.post('/travelblog', authenticateToken, (req, res) => {
             res.sendStatus(500);
         });
 });
-
 
 server.get('/travelblog/:id', (req, res) => {
     let repo = new TravelblogRepository();
@@ -90,7 +71,7 @@ server.delete('/travelblog/:id', authenticateToken, (req, res) => {
             if (x.result.n < 1)
                 res.sendStatus(204);
             else
-                res.status(202).send( {message: 'Accepted'} );
+                res.status(202).send({message: 'Accepted'});
         })
         .catch(err => {
             console.log(err);
@@ -108,7 +89,7 @@ server.put('/travelblog', authenticateToken, (req, res) => {
             if (x.result.n < 1)
                 res.sendStatus(401);
             else
-                res.sendStatus(200);
+                res.status(202).send({ message: 'Accepted' });
         })
         .catch(err => {
             console.log(err);

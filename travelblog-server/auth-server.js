@@ -29,37 +29,6 @@ server.post('/user', async (req, res) => {
     }
 });
 
-// TODO: nur für Testzwecke
-server.post('/user/login', async (req, res) => {
-    let repo = new UsersRepository();
-    const user = repo.getUser(req.body.name);
-    if (user == null) {
-        return res.status(400).send('Cannot find user');
-    }
-
-    try {
-        if (await bcrypt.compare(req.body.password, user.password)) {
-            res.send('Success');
-        } else {
-            res.send('Not Allowed');
-        }
-
-    } catch {
-        res.status(500).send();
-    }
-});
-
-// TODO: nur für Testzwecke
-server.get('/users', (req, res) => {
-    let repo = new UsersRepository();
-    repo.getUsers()
-        .then(obj => res.status(200).send(obj))
-        .catch(err => {
-            console.log(err);
-            res.sendStatus(500);
-        })
-})
-
 server.post('/login', async (req, res) => {
     let repo = new UsersRepository();
     const user = await repo.getUser(req.body.name.trim());
