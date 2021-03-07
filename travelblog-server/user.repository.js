@@ -29,7 +29,7 @@ class UsersRepository {
 
 
     async executeOnDb(success) {
-        return mongo.connect(url, { useUnifiedTopology: true })
+        return mongo.connect(url)
             .then(c => success(c))
             .catch(err => { throw err; })
     }
