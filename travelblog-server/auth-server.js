@@ -73,7 +73,7 @@ server.post('/login', async (req, res) => {
             const accessToken = generateAccessToken(user);
             const decodedAccessToken = jwt.decode(accessToken);
             console.log(decodedAccessToken);
-            res.json( {accessToken: accessToken, expiresAt: decodedAccessToken.exp } );
+            res.json( {accessToken: accessToken, expiresAt: decodedAccessToken.exp, name: decodedAccessToken.name } );
         } else {
             res.send('Not Allowed');
         }
