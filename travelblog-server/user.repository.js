@@ -1,11 +1,8 @@
 const mongo = require('mongodb').MongoClient;
 var ObjectId = require('mongodb').ObjectId;
-//const url = process.env.CONNECTIONSTRING;
-const url = 'mongodb+srv://Server:comi1234@travelblogcluster.6hqwt.mongodb.net/myFirstDatabase?retryWrites=true&w=majority';
-//const dbName = process.env.DB_NAME;
-const dbName = 'travelblog-app';
-//const collectionName = process.env.USERS_COLLECTION_NAME;
-const collectionName = 'users';
+const url = process.env.CONNECTIONSTRING;
+const dbName = process.env.DB_NAME;
+const collectionName = process.env.USERS_COLLECTION_NAME;
 
 class UsersRepository {
 
